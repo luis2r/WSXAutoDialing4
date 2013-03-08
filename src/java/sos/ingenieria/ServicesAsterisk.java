@@ -83,7 +83,6 @@ public class ServicesAsterisk {
 //        String hashorigen = con4.consultar();
 //        return hashorigen;
 //    }
-
     /**
      * PUT method for updating or creating an instance of ServicesAsterisk
      *
@@ -126,12 +125,19 @@ public class ServicesAsterisk {
 //        return respuesta;
 //    }
     @GET
-    @Path("/oneCall/{idllamada}/{extorigen}/{numteldestino}/{numreintentos}/{tiemporeintento}")
+    @Path("/oneCall/{urlbdstring}/{idllamada}/{extorigen}/{numteldestino}/{numreintentos}/{tiemporeintento}")
     @Produces({"text/plain"})
-    public String oneCall1(@PathParam("idllamada") String idllamada, @PathParam("extorigen") String extorigen, @PathParam("numteldestino") String numteldestino, @PathParam("numreintentos") Integer numreintentos, @PathParam("tiemporeintento") Integer tiemporeintento) throws Exception {
+    public String oneCall1(@PathParam("urlbdstring") String urlbdstring, @PathParam("idllamada") String idllamada, @PathParam("extorigen") String extorigen, @PathParam("numteldestino") String numteldestino, @PathParam("numreintentos") Integer numreintentos, @PathParam("tiemporeintento") Integer tiemporeintento) throws Exception {
 
 //        String respuesta = null;
         String respuestallam = null;
+
+
+
+        // Base64 decode
+//        urlbdstring = new String(Base64.decode(urlbdstring));
+        urlbdstring = new String(Base32.decode(urlbdstring));
+
 
 
 
@@ -189,9 +195,9 @@ public class ServicesAsterisk {
                 resp[0] = "2";
             }
 
-                        for (String resp1 : resp) {
-            System.out.println(resp1);
-        }
+            for (String resp1 : resp) {
+                System.out.println(resp1);
+            }
             System.out.println("El tiempo de demora es :" + totalTiempo + " miliseg");
 
 
@@ -224,17 +230,19 @@ public class ServicesAsterisk {
 
         String encodeString = Base64.encodeToString(respuestallam.getBytes(), true);
         System.out.println("encodeToString " + encodeString);
+        System.out.println("La cadena base 32 es: "+urlbdstring);
 
 //        String httpcadena = " http://localhost:8080/GetSomeRest/service/update/" + encodeString;
 
 //        String httpcadena = "http://192.168.2.78/sifiv/crm/respuesta_llamada.php?cadena=+" + encodeString;
 
-        String httpcadena = "http://192.168.2.78/sifiv/llamadas_sistematizadas/respuesta_llamada.php?cadena=+" + encodeString;
+//        String httpcadena = "http://192.168.2.78/sifiv/llamadas_sistematizadas/respuesta_llamada.php?cadena=+" + encodeString;
+        String httpcadena = urlbdstring + "=+" + encodeString;
 
         PeticionHttp post = new PeticionHttp(httpcadena);
 
         String respuesta = post.getRespueta();
-        System.out.println("La respuestaa la cadena: " + httpcadena + " es:" + respuesta);
+        System.out.println("La respuesta a la cadena: " + httpcadena + " es:" + respuesta);
 
         respuestallam = "Proceso terminado exitosamente";
 
@@ -300,7 +308,6 @@ public class ServicesAsterisk {
 //
 //
 //    }
-
 //    @POST
 //    @Path("/oneAlarmXml/{mensaje}")
 //    @Produces({"text/plain"})
@@ -431,7 +438,6 @@ public class ServicesAsterisk {
 //        respuesta = "Proceso terminado exitosamenteLa respuestaa la cadena es:" + respuesta;
 //        return respuesta;
 //    }
-
 //    @POST
 //    @Path("/oneAlarmXmltext")
 ////    @Path("/oneAlarmXml/{id}/{mensaje}/{destino}/{2}/{1}")
@@ -443,7 +449,6 @@ public class ServicesAsterisk {
 ////        xmlRecords = xmlRecords.substring(1);
 //        return xmlRecords;
 //    }
-
 //    @POST
 ////    @Path("/oneAlarmXml")
 //    @Path("/oneAlarmXml/{xmlRecords}")
@@ -510,7 +515,6 @@ public class ServicesAsterisk {
 //        respuesta = "Proceso terminado exitosamenteLa respuestaa la cadena es:" + respuesta;
 //        return respuesta;
 //    }
-
     public static String getCharacterDataFromElement(Element e) {
         Node child = e.getFirstChild();
         if (child instanceof CharacterData) {
@@ -689,7 +693,6 @@ public class ServicesAsterisk {
 ////return respuesta;
 //        return respuestallam;
 //    }
-
     @POST
     @Path("/oneAlarmXml1")
 //    @Path("/oneAlarmXml/{id}/{mensaje}/{destino}/{2}/{1}")
@@ -709,6 +712,7 @@ public class ServicesAsterisk {
         String alarmaIdstring = "";
         String destinostring = "";
         String mensajestring = "";
+        String urlbdstring = "";
         int numeroReintentosstring = 0;
         int tiempoReintentosstring = 0;
         for (int i = 0; i < nodes.getLength(); i++) {
@@ -718,6 +722,11 @@ public class ServicesAsterisk {
             Element line = (Element) alarmaId.item(0);
             System.out.println("alarmaId: " + getCharacterDataFromElement(line));
             alarmaIdstring = getCharacterDataFromElement(line);
+
+            NodeList urlbd = element.getElementsByTagName("urlbd");
+            line = (Element) urlbd.item(0);
+            System.out.println("urlbd: " + getCharacterDataFromElement(line));
+            urlbdstring = getCharacterDataFromElement(line);
 
             NodeList destino = element.getElementsByTagName("destino");
             line = (Element) destino.item(0);
@@ -797,9 +806,9 @@ public class ServicesAsterisk {
                     resp[0] = "2";
                 }
 
-            for (String resp1 : resp) {
-            System.out.println(resp1);
-        }   
+                for (String resp1 : resp) {
+                    System.out.println(resp1);
+                }
                 System.out.println("El tiempo de demora es :" + totalTiempo + " miliseg");
 
 
@@ -824,25 +833,31 @@ public class ServicesAsterisk {
                 resp[0] = "5";
             }
 
-            respuestallam = alarmaIdstring + "|" + resp[0] + "|" + resp[1] + "|" + idsos + "|" + j + "|" + resp[2] + "|";
+            if (!alarmaIdstring.equals("0")) {
 
 
-            String encodeString = Base64.encodeToString(respuestallam.getBytes(), true);
-            System.out.println("encodeToString " + encodeString);
+                respuestallam = alarmaIdstring + "|" + resp[0] + "|" + resp[1] + "|" + idsos + "|" + j + "|" + resp[2] + "|";
+
+
+                String encodeString = Base64.encodeToString(respuestallam.getBytes(), true);
+                System.out.println("encodeToString " + encodeString);
 
 //            String httpcadena = " http://localhost:8080/GetSomeRest/service/update/" + encodeString;
 
 //            String httpcadena = "http://192.168.2.78/sifiv/crm/respuesta_llamada.php?cadena=+" + encodeString;
 
-            String httpcadena = "http://192.168.2.78/sifiv/llamadas_sistematizadas/respuesta_llamada.php?cadena=+" + encodeString;
+//            String httpcadena = "http://192.168.2.78/sifiv/llamadas_sistematizadas/respuesta_llamada.php?cadena=+" + encodeString;
+
+                String httpcadena = urlbdstring + "=+" + encodeString;
 
 
-            PeticionHttp post = new PeticionHttp(httpcadena);
+                PeticionHttp post = new PeticionHttp(httpcadena);
 
-            respuesta = post.getRespueta();
-            System.out.println("La respuestaa la cadena: " + httpcadena + " es:" + respuesta);
+                respuesta = post.getRespueta();
+                System.out.println("La respuestaa la cadena: " + httpcadena + " es:" + respuesta);
+            }
+
         }
-
 
         respuesta = "Proceso terminado exitosamente";
 

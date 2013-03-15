@@ -132,7 +132,10 @@ public class ServicesAsterisk {
 //        String respuesta = null;
         String respuestallam = null;
 
-        urlbdstring=urlbdstring.replace('#', '/');
+        urlbdstring=urlbdstring.replace('|', '/');
+        urlbdstring=urlbdstring.replace('*', '.');
+        urlbdstring=urlbdstring.replace('$', '?');
+        urlbdstring=urlbdstring.replace('&', ':');
         // Base64 decode
                 //        urlbdstring = new String(Base64.decode(urlbdstring));
                 //        urlbdstring = new String(Base32.decode(urlbdstring));

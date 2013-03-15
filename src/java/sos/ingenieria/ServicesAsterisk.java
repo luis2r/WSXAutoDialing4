@@ -132,11 +132,10 @@ public class ServicesAsterisk {
 //        String respuesta = null;
         String respuestallam = null;
 
-
-
+        urlbdstring=urlbdstring.replace('#', '/');
         // Base64 decode
-//        urlbdstring = new String(Base64.decode(urlbdstring));
-        urlbdstring = new String(Base32.decode(urlbdstring));
+                //        urlbdstring = new String(Base64.decode(urlbdstring));
+                //        urlbdstring = new String(Base32.decode(urlbdstring));
 
 
 
@@ -230,7 +229,7 @@ public class ServicesAsterisk {
 
         String encodeString = Base64.encodeToString(respuestallam.getBytes(), true);
         System.out.println("encodeToString " + encodeString);
-        System.out.println("La cadena base 32 es: "+urlbdstring);
+        System.out.println("La cadena base 32 es: " + urlbdstring);
 
 //        String httpcadena = " http://localhost:8080/GetSomeRest/service/update/" + encodeString;
 
@@ -524,175 +523,182 @@ public class ServicesAsterisk {
         return "";
     }
 
-//    @POST
-//    @Path("/groupCallXml")
-////    @Path("/oneAlarmXml/{id}/{mensaje}/{destino}/{2}/{1}")
-//    @Consumes({"text/plain"})
-//    @Produces({"text/plain"})
-//    public String groupCallXml(/*@PathParam("id") String id,@PathParam("xmlRecords")*/String xmlRecords/*,@PathParam("destino") String destino*/) throws Exception {
-//        xmlRecords = xmlRecords.substring(2);
-//        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-//        InputSource is = new InputSource();
-//        is.setCharacterStream(new StringReader(xmlRecords));
+    @POST
+    @Path("/groupCallXml")
+//    @Path("/oneAlarmXml/{id}/{mensaje}/{destino}/{2}/{1}")
+    @Consumes({"text/plain"})
+    @Produces({"text/plain"})
+    public String groupCallXml(/*@PathParam("id") String id,@PathParam("xmlRecords")*/String xmlRecords/*,@PathParam("destino") String destino*/) throws Exception {
+        xmlRecords = xmlRecords.substring(2);
+        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(xmlRecords));
+
+        Document doc = db.parse(is);
+        NodeList nodes = doc.getElementsByTagName("llamada");
+        String respuesta = "";
+        String respuestallam = "";
+
+        String llamadaIdIdstring = "";
+        String destinostring = "";
+        String origenstring = "";
+        String urlbdstring = "";
+        int numeroReintentosstring = 0;
+        int tiempoReintentosstring = 0;
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Element element = (Element) nodes.item(i);
+
+            NodeList llamadaId = element.getElementsByTagName("llamadaId");
+            Element line = (Element) llamadaId.item(0);
+            System.out.println("llamadaId: " + getCharacterDataFromElement(line));
+            llamadaIdIdstring = getCharacterDataFromElement(line);
+
+            NodeList urlbd = element.getElementsByTagName("urlbd");
+            line = (Element) urlbd.item(0);
+            System.out.println("urlbd: " + getCharacterDataFromElement(line));
+            urlbdstring = getCharacterDataFromElement(line);
+
+            NodeList destino = element.getElementsByTagName("destino");
+            line = (Element) destino.item(0);
+//      String d=getCharacterDataFromElement(line);
+            System.out.println("destino: " + getCharacterDataFromElement(line));
+            destinostring = getCharacterDataFromElement(line);
+
+            NodeList origen = element.getElementsByTagName("origen");
+            line = (Element) origen.item(0);
+            System.out.println("origen: " + getCharacterDataFromElement(line));
+            origenstring = getCharacterDataFromElement(line);
+
+            NodeList numeroReintentos = element.getElementsByTagName("numeroReintentos");
+            line = (Element) numeroReintentos.item(0);
+            System.out.println("numeroReintentos: " + getCharacterDataFromElement(line));
+            numeroReintentosstring = Integer.parseInt(getCharacterDataFromElement(line));
+
+            NodeList tiempoReintentos = element.getElementsByTagName("tiempoReintentos");
+            line = (Element) tiempoReintentos.item(0);
+            System.out.println("tiempoReintentos: " + getCharacterDataFromElement(line));
+            tiempoReintentosstring = Integer.parseInt(getCharacterDataFromElement(line));
+
+
+
+
+
+
+
+
+
+            //        String respuesta = null;
+
+
+
+
+            ConexionDataBase con = new ConexionDataBase(llamadaIdIdstring, origenstring, destinostring, numeroReintentosstring, tiempoReintentosstring);
+            con.InsertarLlamadaDataBase();
 //
-//        Document doc = db.parse(is);
-//        NodeList nodes = doc.getElementsByTagName("llamada");
-//        String respuesta = "";
-//        String respuestallam = "";
-//
-//        String llamadaIdIdstring = "";
-//        String destinostring = "";
-//        String origenstring = "";
-//        int numeroReintentosstring = 0;
-//        int tiempoReintentosstring = 0;
-//        for (int i = 0; i < nodes.getLength(); i++) {
-//            Element element = (Element) nodes.item(i);
-//
-//            NodeList llamadaId = element.getElementsByTagName("llamadaId");
-//            Element line = (Element) llamadaId.item(0);
-//            System.out.println("llamadaId: " + getCharacterDataFromElement(line));
-//            llamadaIdIdstring = getCharacterDataFromElement(line);
-//
-//            NodeList destino = element.getElementsByTagName("destino");
-//            line = (Element) destino.item(0);
-////      String d=getCharacterDataFromElement(line);
-//            System.out.println("destino: " + getCharacterDataFromElement(line));
-//            destinostring = getCharacterDataFromElement(line);
-//
-//            NodeList origen = element.getElementsByTagName("origen");
-//            line = (Element) origen.item(0);
-//            System.out.println("origen: " + getCharacterDataFromElement(line));
-//            origenstring = getCharacterDataFromElement(line);
-//
-//            NodeList numeroReintentos = element.getElementsByTagName("numeroReintentos");
-//            line = (Element) numeroReintentos.item(0);
-//            System.out.println("numeroReintentos: " + getCharacterDataFromElement(line));
-//            numeroReintentosstring = Integer.parseInt(getCharacterDataFromElement(line));
-//
-//            NodeList tiempoReintentos = element.getElementsByTagName("tiempoReintentos");
-//            line = (Element) tiempoReintentos.item(0);
-//            System.out.println("tiempoReintentos: " + getCharacterDataFromElement(line));
-//            tiempoReintentosstring = Integer.parseInt(getCharacterDataFromElement(line));
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//            //        String respuesta = null;
-//
-//
-//
-//
-//            ConexionDataBase con = new ConexionDataBase(llamadaIdIdstring, origenstring, destinostring, numeroReintentosstring, tiempoReintentosstring);
-//            con.InsertarLlamadaDataBase();
-////
-//            ConsultaIdSOS con2 = new ConsultaIdSOS(llamadaIdIdstring);
-//            String idsos = con2.consultar();
-//
-////        CapturaEventosDB capturaEventosDB = new CapturaEventosDB(extorigen, numteldestino, idllamada, idsos, numreintentos, "");
-////        capturaEventosDB.start();
-//
-//
-//
-////        OneCall oneCall = new OneCall();
-//
-////        for (int i = 1; i <= numreintentos; i++) {
-////            respuesta = oneCall.call(numteldestino, extorigen);
-//////                        respuesta = oneCall.call("1010", "277");
-////            if (respuesta.equals("Conexión establecida con el cliente")) {
-////                break;
-////            }
-////            System.out.println("SIGUIENTE REINTENTO");
-////            Thread.sleep(tiemporeintento * 3600);
-////
-////        }
-//
-//            String[] resp = null;
-//
-//            int j = 0;
-//            for (j = 1; j <= numeroReintentosstring; j++) {
-//
-//                AsteriskCallEventsStateProd call = new AsteriskCallEventsStateProd();
-//                call.setNumber(destinostring); //destino
-//                call.setMessage(origenstring);//origen
-//
-//                long tiempoInicio = System.currentTimeMillis();
-//                System.out.println("El tiempo de inicio es :" + tiempoInicio + " miliseg");
-//                resp = call.originate();
-//                long tiempoFin = System.currentTimeMillis();
-//                System.out.println("El tiempo de fin es :" + tiempoFin + " miliseg");
-//                long totalTiempo = tiempoFin - tiempoInicio;
-//
-//                if (resp[0].equals("1")) {
-//                    break;
-//                }
-//
-//                if (resp[0].equals("4") && totalTiempo > 1000) {
-//                    resp[0] = "2";
-//                }
-//
-//                System.out.println(resp);
-//                System.out.println("El tiempo de demora es :" + totalTiempo + " miliseg");
-//                System.out.println("SIGUIENTE REINTENTO");
-//                Thread.sleep(tiempoReintentosstring * 3600);
-//
+            ConsultaIdSOS con2 = new ConsultaIdSOS(llamadaIdIdstring);
+            String idsos = con2.consultar();
+
+//        CapturaEventosDB capturaEventosDB = new CapturaEventosDB(extorigen, numteldestino, idllamada, idsos, numreintentos, "");
+//        capturaEventosDB.start();
+
+
+
+//        OneCall oneCall = new OneCall();
+
+//        for (int i = 1; i <= numreintentos; i++) {
+//            respuesta = oneCall.call(numteldestino, extorigen);
+////                        respuesta = oneCall.call("1010", "277");
+//            if (respuesta.equals("Conexión establecida con el cliente")) {
+//                break;
 //            }
-//
-//            if (resp[0].equals("1") && resp[1].equals("0")) {
-//                resp[0] = "4";
-//            }
-//
-//            if (!resp[0].equals("1")) {
-//                resp[1] = "0";
-//                resp[2] = "0";
-//                j = 0;//reintento contestado
-//            }
-//
-//            if (resp[0].equals("1") && Integer.parseInt(resp[1]) < 10) {
-//                resp[0] = "5";
-//            }
-//
-//            respuestallam = llamadaIdIdstring + "|" + resp[0] + "|" + resp[1] + "|" + idsos + "|" + j + "|" + resp[2] + "|";
-//
-//
-//            String encodeString = Base64.encodeToString(respuestallam.getBytes(), true);
-//            System.out.println("encodeToString " + encodeString);
-//
-////            String httpcadena = " http://localhost:8080/GetSomeRest/service/update/" + encodeString;
-//
-////            String httpcadena = "http://192.168.2.78/sifiv/crm/respuesta_llamada.php?cadena=+" + encodeString;
-//
-//            String httpcadena = "http://192.168.2.78/sifiv/llamadas_sistematizadas/respuesta_llamada.php?cadena=+" + encodeString;
-//
-//
-//            PeticionHttp post = new PeticionHttp(httpcadena);
-//
-//            respuesta = post.getRespueta();
-//            System.out.println("La respuestaa la cadena: " + httpcadena + " es:" + respuesta);
-//
-//
-//
-//
-////        return respuestallam;
-//
-//
-//
-//
-//
-//
-//
+//            System.out.println("SIGUIENTE REINTENTO");
+//            Thread.sleep(tiemporeintento * 3600);
 //
 //        }
-//
-//        respuestallam = "Proceso terminado exitosamenteLa respuestaa la cadena es:" + respuesta;
-//
-////return respuesta;
+
+            String[] resp = null;
+
+            int j = 0;
+            for (j = 1; j <= numeroReintentosstring; j++) {
+
+                AsteriskCallEventsStateProd call = new AsteriskCallEventsStateProd();
+                call.setNumber(destinostring); //destino
+                call.setMessage(origenstring);//origen
+
+                long tiempoInicio = System.currentTimeMillis();
+                System.out.println("El tiempo de inicio es :" + tiempoInicio + " miliseg");
+                resp = call.originate();
+                long tiempoFin = System.currentTimeMillis();
+                System.out.println("El tiempo de fin es :" + tiempoFin + " miliseg");
+                long totalTiempo = tiempoFin - tiempoInicio;
+
+                if (resp[0].equals("1")) {
+                    break;
+                }
+
+                if (resp[0].equals("4") && totalTiempo > 1000) {
+                    resp[0] = "2";
+                }
+
+                System.out.println(resp);
+                System.out.println("El tiempo de demora es :" + totalTiempo + " miliseg");
+                System.out.println("SIGUIENTE REINTENTO");
+                Thread.sleep(tiempoReintentosstring * 3600);
+
+            }
+
+            if (resp[0].equals("1") && resp[1].equals("0")) {
+                resp[0] = "4";
+            }
+
+            if (!resp[0].equals("1")) {
+                resp[1] = "0";
+                resp[2] = "0";
+                j = 0;//reintento contestado
+            }
+
+            if (resp[0].equals("1") && Integer.parseInt(resp[1]) < 10) {
+                resp[0] = "5";
+            }
+
+            respuestallam = llamadaIdIdstring + "|" + resp[0] + "|" + resp[1] + "|" + idsos + "|" + j + "|" + resp[2] + "|";
+
+
+            String encodeString = Base64.encodeToString(respuestallam.getBytes(), true);
+            System.out.println("encodeToString " + encodeString);
+
+//            String httpcadena = " http://localhost:8080/GetSomeRest/service/update/" + encodeString;
+
+//            String httpcadena = "http://192.168.2.78/sifiv/crm/respuesta_llamada.php?cadena=+" + encodeString;
+
+//            String httpcadena = "http://192.168.2.78/sifiv/llamadas_sistematizadas/respuesta_llamada.php?cadena=+" + encodeString;
+
+            String httpcadena = urlbdstring + "=+" + encodeString;
+            PeticionHttp post = new PeticionHttp(httpcadena);
+
+            respuesta = post.getRespueta();
+            System.out.println("La respuestaa la cadena: " + httpcadena + " es:" + respuesta);
+
+
+
+
 //        return respuestallam;
-//    }
+
+
+
+
+
+
+
+
+        }
+
+        respuestallam = "Proceso terminado exitosamente";
+
+//return respuesta;
+        return respuestallam;
+    }
+
     @POST
     @Path("/oneAlarmXml1")
 //    @Path("/oneAlarmXml/{id}/{mensaje}/{destino}/{2}/{1}")
